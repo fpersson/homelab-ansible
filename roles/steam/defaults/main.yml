@@ -6,4 +6,4 @@ steam_user: "steam"
 # Password login is locked until this value is overridden with a secure hash.
 steam_user_pwd: "!"
 steam_user_home: "/home/{{ steam_user }}"
-steam_dir: "/opt/steam"
+steam_dir: "/home/{{ steam_user }}/cmd"
