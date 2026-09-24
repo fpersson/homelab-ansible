@@ -1,0 +1,6 @@
+- name: Setup gameserver
+  hosts: all
+  gather_facts: true
+  become: true
+  roles:
+    - role: steam

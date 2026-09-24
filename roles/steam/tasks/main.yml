@@ -1,0 +1,52 @@
+---
+# tasks file for roles/steam
+- name: Create steam group
+  become: true
+  ansible.builtin.group:
+    name: "{{ steam_user }}"
+    state: present
+
+- name: Create user
+  become: true
+  ansible.builtin.user:
+    name: "{{ steam_user }}"
+    comment: "Steam cmd user"
+    groups: "{{ steam_user }}"
+    append: true
+    createhome: true
+    shell: "/bin/bash"
+    home: "{{ steam_user_home }}"
+    password: "{{ steam_user_pwd }}"
+
+- name: Install 32bit support
+  become: true
+  community.general.zypper:
+    name:
+      - libgcc_s1-32bit
+      - libstdc++6-32bit
+    state: present
+  when: ansible_facts["distribution"] in ["openSUSE Tumbleweed", "openSUSE Tumbleweed-Slowroll", "openSUSE MicroOS"]
+
+- name: Create steamcmd dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ steam_dir }}"
+    owner: "{{ steam_user }}"
+    mode: "0755"
+    state: directory
+
+- name: Extract SteamCMD
+  become: true
+  ansible.builtin.unarchive:
+    src: "{{ steam_file }}"
+    dest: "{{ steam_dir }}"
+    remote_src: true
+    owner: "{{ steam_user }}"
+
+- name: Initialize SteamCMD
+  become: true
+  become_user: "{{ steam_user }}"
+  ansible.builtin.command:
+    cmd: "./steamcmd.sh +quit"
+    chdir: "{{ steam_dir }}"
+  changed_when: false
