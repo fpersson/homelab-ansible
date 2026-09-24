@@ -1,7 +1,21 @@
 ---
-# tasks file for update
-- name: Update the host
+# tasks file for roles/update
+
+# Update the package on host, only useful with Leap; for TW/SR use dup
+- name: Update the package on host
   become: true
   community.general.zypper:
     name: "*"
     state: latest
+    update_cache: true
+  when: ansible_facts["distribution"] == "openSUSE Leap"
+
+# Do distupgrade on host, recommended method to update the TW family
+- name: Do distupgrade on host
+  become: true
+  community.general.zypper:
+    name: "*"
+    state: dist-upgrade
+    allow_vendor_change: true
+    update_cache: true
+  when: ansible_facts["distribution"] in ["openSUSE Tumbleweed", "openSUSE Tumbleweed-Slowroll", "openSUSE MicroOS"]

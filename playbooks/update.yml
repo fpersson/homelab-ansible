@@ -1,6 +1,6 @@
 - name: Update the host
   hosts: all
-  gather_facts: false
+  gather_facts: true
   roles:
     - role: update
     - role: reboot

@@ -1,4 +1,4 @@
 ---
-# tasks file for ping
+# tasks file for roles/ping
 - name: Ping the host
   ansible.builtin.ping:

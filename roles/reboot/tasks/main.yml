@@ -1,5 +1,5 @@
 ---
-# tasks file for reboot
+# tasks file for roles/reboot
 - name: Reboot the host
   become: true
   ansible.builtin.reboot:
