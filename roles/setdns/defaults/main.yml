@@ -1,0 +1,7 @@
+---
+# defaults file for roles/setdns
+setdns_nameservers: []
+setdns_search_domains: []
+setdns_options: []
+setdns_connections: []
+setdns_ignore_auto_dns: true

@@ -1,0 +1,29 @@
+---
+# tasks file for roles/setdns
+- name: Validate DNS configuration from inventory
+  ansible.builtin.assert:
+    that:
+      - setdns_nameservers is sequence
+      - setdns_nameservers is not string
+      - setdns_nameservers is not mapping
+      - setdns_nameservers | length > 0
+      - setdns_connections is sequence
+      - setdns_connections is not string
+      - setdns_connections is not mapping
+      - setdns_connections | length > 0
+    fail_msg: >-
+      Set setdns_nameservers to IPv4 DNS servers and setdns_connections
+      to the existing connection names to configure in your inventory.
+
+- name: Configure DNS for each selected connection
+  become: true
+  community.general.nmcli:
+    conn_name: "{{ item }}"
+    type: ethernet
+    state: present
+    dns4: "{{ setdns_nameservers }}"
+    dns4_search: "{{ setdns_search_domains }}"
+    dns4_options: "{{ setdns_options }}"
+    dns4_ignore_auto: "{{ setdns_ignore_auto_dns }}"
+    dns6_ignore_auto: "{{ setdns_ignore_auto_dns }}"
+  loop: "{{ setdns_connections }}"

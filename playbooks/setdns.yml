@@ -1,0 +1,37 @@
+---
+- name: Configure DNS with NetworkManager
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: setdns
+      tags: setdns
+  post_tasks:
+    - name: Optionally restart networking after all configuration tasks
+      when:
+        - setdns_restart_network | default(false) | bool
+        - not ansible_check_mode
+      tags: setdns
+      block:
+        - name: Restart the network service asynchronously
+          become: true
+          ansible.builtin.systemd_service:
+            name: "{{ setdns_network_service | default('NetworkManager') }}"
+            state: restarted
+          async: 60
+          poll: 0
+          register: setdns_network_restart
+
+        - name: Wait for the SSH connection to return
+          become: false
+          ansible.builtin.wait_for_connection:
+            delay: 5
+            timeout: 300
+
+        - name: Verify that the network restart succeeded
+          become: true
+          ansible.builtin.async_status:
+            jid: "{{ setdns_network_restart.ansible_job_id }}"
+          register: setdns_network_restart_result
+          until: setdns_network_restart_result.finished
+          retries: 30
+          delay: 2
