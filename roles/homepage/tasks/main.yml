@@ -1,0 +1,59 @@
+---
+# tasks file for roles/homepage
+- name: Create homepage directories with SELinux context
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+    setype: "container_file_t"
+    recurse: true
+  loop:
+    - "{{ homepage_dir }}"
+    - "{{ homepage_dir }}/config"
+    - "{{ homepage_dir }}/config/logs"
+
+- name: Render Homepage Docker Compose file
+  ansible.builtin.template:
+    src: docker-compose-homepage.yaml
+    dest: "{{ homepage_dir }}/docker-compose.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0744"
+
+- name: Copy settings.yaml
+  ansible.builtin.copy:
+    src: settings.yaml
+    dest: "{{ homepage_dir }}/config/settings.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0664"
+
+- name: Copy services.yaml
+  ansible.builtin.template:
+    src: services.yaml
+    dest: "{{ homepage_dir }}/config/services.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0664"
+
+- name: Copy docker.yaml
+  ansible.builtin.copy:
+    src: docker.yaml
+    dest: "{{ homepage_dir }}/config/docker.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: "0644"
+
+- name: Pull Homepage image for tagged updates
+  community.docker.docker_compose_v2_pull:
+    project_src: "{{ homepage_dir }}"
+  when: "'homepage_update' in ansible_run_tags"
+  tags:
+    - homepage_update
+
+- name: Ensure Homepage is running
+  community.docker.docker_compose_v2:
+    project_src: "{{ homepage_dir }}"
+    state: present
+  tags:
+    - homepage_update

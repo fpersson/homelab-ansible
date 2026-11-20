@@ -1,0 +1,11 @@
+---
+homepage_dir: /opt/homepage
+
+# Homepage service data is provided by inventory.
+homepage_services: []
+
+homepage_image: ghcr.io/gethomepage/homepage:latest
+homepage_container_name: homepage
+homepage_port: 3000
+homepage_allowed_hosts: localhost:3000
+homepage_docker_socket_path: /var/run/docker.sock

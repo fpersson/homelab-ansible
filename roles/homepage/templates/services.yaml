@@ -1,0 +1,3 @@
+---
+# Homepage service catalog; override homepage_services in inventory.
+{{ homepage_services | to_nice_yaml(indent=2, sort_keys=False) }}

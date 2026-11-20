@@ -1,0 +1,8 @@
+---
+# tasks file for roles/prune
+- name: Prune dangling Docker images
+  become: true
+  community.docker.docker_prune:
+    images: true
+    images_filters:
+      dangling: true
